@@ -1,6 +1,6 @@
 # Magnetics-Modeling
 
-This repository provides a collection of accurate models for magnetic components, such as inductors and transformers. The models address crucial design aspects, including:
+This repository provides a collection of models for magnetic components, such as inductors and transformers. The models address crucial design aspects, including:
 
 - Leakage inductance
 - Core losses
