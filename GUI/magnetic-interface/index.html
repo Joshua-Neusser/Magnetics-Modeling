@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnetic Component Designer</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+        :root {
+            --primary-color: #42b883;
+            --background-color: #f4f7f6;
+            --text-color: #35495e;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        #top-bar {
+            background-color: white;
+            padding: 1.5em 2em;
+            box-shadow: var(--shadow);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 2.5em;
+            align-items: flex-start;
+        }
+
+        #selection-controls {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        /* Updated to center the drawing */
+        #core-display {
+            flex: 3;
+            display: flex;
+            justify-content: center; /* Center the drawing horizontally */
+            align-items: flex-start;
+        }
+
+        #core-image-container {
+            flex-basis: 400px; 
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fcfcfc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* --- LINHAS ADICIONADAS --- */
+            padding: 1.5em; /* Cria uma margem interna generosa */
+            box-sizing: border-box; /* Garante que o padding não aumente o tamanho total do container */
+        }
+
+        #core-image-container object {
+            width: 100%;
+            height: auto;
+        }
+        
+        #core-image-container .placeholder-text {
+             padding: 4em 2em; /* Added more padding for the placeholder */
+             text-align: center;
+             color: #aaa;
+        }
+
+        #main-content {
+            padding: 2em;
+            flex-grow: 1;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .selector-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+            margin-bottom: 1em;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        select {
+            padding: 0.7em;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+
+        <header id="top-bar">
+
+            <div id="selection-controls">
+                <h2>Core Selection</h2>
+                <div class="selector-group">
+                    <label>Family:</label>
+                    <select v-model="selectedFamily" @change="fetchModels">
+                        <option disabled value="">Select...</option>
+                        <option v-for="family in families" :value="family">{{ family.toUpperCase() }}</option>
+                    </select>
+                </div>
+
+                <div v-if="selectedFamily" class="selector-group">
+                    <label>Model:</label>
+                    <select v-model="selectedModel" @change="fetchCoreData">
+                        <option disabled value="">Select...</option>
+                        <option v-for="model in models" :value="model">{{ model }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="core-display">
+                <div id="core-image-container" v-if="currentCore">
+                    <object :key="svgPath" :data="svgPath" type="image/svg+xml" id="core-svg" @load="updateSvgDimensions">
+                        <div class="placeholder-text">Could not load drawing.</div>
+                    </object>
+                </div>
+                
+                <div id="core-image-container" v-else>
+                    <div class="placeholder-text">Select a core to see its drawing and dimensions</div>
+                </div>
+            </div>
+
+        </header>
+
+        <main id="main-content">
+            <h2>Winding & Material Properties</h2>
+            <p>Future content for windings, conductors, materials, and analysis will go here.</p>
+        </main>
+    </div>
+
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                families: [],
+                models: [],
+                selectedFamily: '',
+                selectedModel: '',
+                currentCore: null,
+                apiUrl: 'http://127.0.0.1:5000/api'
+            },
+            computed: {
+                svgPath() {
+                    if (!this.selectedFamily) return null;
+                    return `assets/svg/${this.selectedFamily.toLowerCase()}.svg`;
+                },
+                displayableDimensions() {
+                    if (!this.currentCore || !this.currentCore.dimensions) return [];
+                    
+                    const dimensions = this.currentCore.dimensions;
+                    const result = [];
+                    const sortedKeys = Object.keys(dimensions).sort();
+
+                    for (const key of sortedKeys) {
+                        const dim = dimensions[key];
+                        let formattedValue = '';
+
+                        if (dim && typeof dim === 'object' && dim !== null) {
+                            if (typeof dim.nominal === 'number') {
+                                formattedValue = (dim.nominal * 1000).toFixed(2);
+                            } else if (typeof dim.minimum === 'number' && typeof dim.maximum === 'number') {
+                                const average = (dim.minimum + dim.maximum) / 2;
+                                formattedValue = (average * 1000).toFixed(2);
+                            }
+                        } else if (typeof dim === 'number') {
+                            formattedValue = (dim * 1000).toFixed(2);
+                        }
+
+                        if (formattedValue) {
+                            result.push({ key: key, value: formattedValue });
+                        }
+                    }
+                    return result;
+                }
+            },
+            methods: {
+                async fetchFamilies() {
+                    try {
+                        const response = await fetch(`${this.apiUrl}/families`);
+                        this.families = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching families:', error);
+                    }
+                },
+                async fetchModels() {
+                    if (!this.selectedFamily) return;
+                    this.selectedModel = '';
+                    this.currentCore = null;
+                    try {
+                        const response = await fetch(`${this.apiUrl}/models/${this.selectedFamily}`);
+                        this.models = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching models:', error);
+                    }
+                },
+                async fetchCoreData() {
+                    if (!this.selectedModel) return;
+                    try {
+                        const encodedModel = encodeURIComponent(this.selectedModel);
+                        const response = await fetch(`${this.apiUrl}/core/${encodedModel}`);
+                        this.currentCore = await response.json();
+
+                        this.$nextTick(() => {
+                            this.updateSvgDimensions();
+                        });
+
+                    } catch (error) {
+                        console.error('Error fetching core data:', error);
+                    }
+                },
+                updateSvgDimensions() {
+                    const svgObject = document.getElementById('core-svg');
+                    if (!svgObject || !svgObject.contentDocument) {
+                        setTimeout(() => this.updateSvgDimensions(), 100);
+                        return;
+                    }
+
+                    const svgDoc = svgObject.contentDocument;
+
+                    // --- NOVA PARTE: APLICA A FONTE DA PÁGINA ---
+                    // 1. Pega a fonte que está sendo usada no corpo da página.
+                    const pageFontFamily = window.getComputedStyle(document.body).fontFamily;
+                    
+                    // 2. Encontra TODOS os elementos de texto dentro do SVG.
+                    const textElementsInSvg = svgDoc.querySelectorAll('text');
+                    
+                    // 3. Aplica o estilo da fonte da página a cada um deles.
+                    textElementsInSvg.forEach(element => {
+                        element.style.fontFamily = pageFontFamily;
+                    });
+                    // ---------------------------------------------
+
+                    // O código para atualizar os valores continua o mesmo.
+                    for (const dim of this.displayableDimensions) {
+                        const textElement = svgDoc.getElementById(`dim-${dim.key}`);
+                        if (textElement) {
+                            textElement.textContent = dim.value;
+                        }
+                    }
+                }
+            },
+            mounted() {
+                this.fetchFamilies();
+            }
+        });
+    </script>
+
+</body>
+</html>
