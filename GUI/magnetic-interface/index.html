@@ -68,10 +68,10 @@
              text-align: center;
              color: #7a8b9d;
         }
-        /* MUDANÇA: #main-content agora é um container flex */
         #main-content {
             display: flex;
             gap: 2em;
+            flex-grow: 1;
         }
         h2 {
             margin-top: 0;
@@ -80,12 +80,18 @@
             color: white;
             font-weight: 500;
         }
-        h3 {
+        h3, h4 {
             color: var(--steam-light-blue);
             border-bottom: 1px solid var(--steam-border);
             padding-bottom: 0.3em;
             margin-top: 1.5em;
             font-size: 1.1em;
+        }
+        h4 {
+            font-size: 1em;
+            border-bottom-style: dashed;
+            margin-top: 1em;
+            margin-bottom: 1em;
         }
         .selector-group {
             display: flex;
@@ -121,11 +127,8 @@
             outline: 1px solid var(--steam-light-blue);
             border-color: var(--steam-light-blue);
         }
-        #dimensions-info {
-            flex-basis: 180px;
-        }
-        #parameters-info {
-            flex-basis: 220px;
+        #dimensions-info, #parameters-info {
+            flex-basis: 200px;
         }
         .info-table {
             width: 100%;
@@ -152,6 +155,13 @@
         .form-column {
             flex: 1;
         }
+        .radio-group {
+            display: flex;
+            align-items: center;
+        }
+        .radio-group input[type="radio"] {
+           width: auto;
+        }
         .radio-group label {
             margin-left: 0.5em;
             margin-right: 1.5em;
@@ -168,14 +178,16 @@
             font-weight: normal;
             color: var(--steam-text);
         }
-        /* NOVO: Estilos para as colunas 1/3 e 2/3 */
         .main-column-1 {
-            flex: 1; /* Ocupa 1 parte do espaço */
+            flex: 3;
+            display: flex;
+            gap: 2em;
+        }
+        .input-section {
+            flex: 1;
         }
         .main-column-2 {
-            flex: 5; /* Ocupa 5 partes do espaço */
-            border: 2px dashed var(--steam-border);
-            border-radius: 4px;
+            flex: 2;
             padding: 0 1.5em;
             color: #7a8b9d;
         }
@@ -226,131 +238,79 @@
         </header>
 
         <main id="main-content" class="content-box">
-            
             <div class="main-column-1">
-                <h2>Winding Definition</h2>
-                <div class="selector-group">
-                    <label>Component Type:</label>
-                    <div class="radio-group">
-                        <input type="radio" id="inductor" value="inductor" v-model="componentType">
-                        <label for="inductor">Inductor</label>
-                        <input type="radio" id="transformer" value="transformer" v-model="componentType">
-                        <label for="transformer">Transformer</label>
-                    </div>
-                </div>
-                <div v-if="componentType === 'transformer'" class="form-section">
-                    <div class="form-column">
-                        <h3>Primary Winding</h3>
-                        <div class="input-group">
-                            <label>Wire type:</label>
-                            <select v-model="primaryWinding.wireType">
-                                <option value="solid">Solid</option>
-                                <option value="litz">Litz</option>
-                            </select>
-                        </div>
-                        <div v-if="primaryWinding.wireType === 'solid'">
-                            <div class="input-group">
-                                <label>Wire Diameter (mm):</label>
-                                <input type="number" v-model.number="primaryWinding.diameter">
-                            </div>
-                            <div class="input-group">
-                                <label>Insulation Thickness (mm):</label>
-                                <input type="number" v-model.number="primaryWinding.insulation">
-                            </div>
-                        </div>
-                        <div v-if="primaryWinding.wireType === 'litz'">
-                            <div class="input-group">
-                                <label>Number of Strands:</label>
-                                <input type="number" v-model.number="primaryWinding.strands">
-                            </div>
-                            <div class="input-group">
-                                <label>Strand Diameter (mm):</label>
-                                <input type="number" v-model.number="primaryWinding.strandDiameter">
-                            </div>
-                            <div class="input-group">
-                                <label>Strand Insulation Thickness (mm):</label>
-                                <input type="number" v-model.number="primaryWinding.strandInsulation">
-                            </div>
+                <div class="input-section">
+                    <h3>Winding Definition</h3>
+                    <div class="selector-group">
+                        <label>Component Type:</label>
+                        <div class="radio-group">
+                            <input type="radio" id="inductor" value="inductor" v-model="componentType">
+                            <label for="inductor">Inductor</label>
+                            <input type="radio" id="transformer" value="transformer" v-model="componentType">
+                            <label for="transformer">Transformer</label>
                         </div>
                     </div>
-                    <div class="form-column">
-                        <h3>Secondary Winding</h3>
-                        <div class="input-group">
-                            <label>Wire type:</label>
-                            <select v-model="secondaryWinding.wireType">
-                                <option value="solid">Solid</option>
-                                <option value="litz">Litz</option>
-                            </select>
+                    <div v-if="componentType === 'transformer'" class="form-section">
+                        <div class="form-column">
+                            <h4>Primary Winding</h4>
+                            <div class="input-group"><label>Number of Turns:</label><input type="number" v-model.number="primaryWinding.turns" min="1" step="1"></div>
+                            <div class="input-group"><label>Wire type:</label><select v-model="primaryWinding.wireType"><option value="solid">Solid</option><option value="litz">Litz</option></select></div>
+                            <div v-if="primaryWinding.wireType === 'solid'"><div class="input-group"><label>Wire Diameter (mm):</label><input type="number" v-model.number="primaryWinding.diameter" min="0"></div><div class="input-group"><label>Insulation Thickness (mm):</label><input type="number" v-model.number="primaryWinding.insulation" min="0"></div></div>
+                            <div v-if="primaryWinding.wireType === 'litz'"><div class="input-group"><label>Number of Strands:</label><input type="number" v-model.number="primaryWinding.strands" min="1" step="1"></div><div class="input-group"><label>Strand Diameter (mm):</label><input type="number" v-model.number="primaryWinding.strandDiameter" min="0"></div><div class="input-group"><label>Strand Insulation Thickness (mm):</label><input type="number" v-model.number="primaryWinding.strandInsulation" min="0"></div></div>
                         </div>
-                        <div v-if="secondaryWinding.wireType === 'solid'">
-                            <div class="input-group">
-                                <label>Wire Diameter (mm):</label>
-                                <input type="number" v-model.number="secondaryWinding.diameter">
-                            </div>
-                            <div class="input-group">
-                                <label>Insulation Thickness (mm):</label>
-                                <input type="number" v-model.number="secondaryWinding.insulation">
-                            </div>
+                        <div class="form-column">
+                            <h4>Secondary Winding</h4>
+                            <div class="input-group"><label>Number of Turns:</label><input type="number" v-model.number="secondaryWinding.turns" min="1" step="1"></div>
+                            <div class="input-group"><label>Wire type:</label><select v-model="secondaryWinding.wireType"><option value="solid">Solid</option><option value="litz">Litz</option></select></div>
+                            <div v-if="secondaryWinding.wireType === 'solid'"><div class="input-group"><label>Wire Diameter (mm):</label><input type="number" v-model.number="secondaryWinding.diameter" min="0"></div><div class="input-group"><label>Insulation Thickness (mm):</label><input type="number" v-model.number="secondaryWinding.insulation" min="0"></div></div>
+                            <div v-if="secondaryWinding.wireType === 'litz'"><div class="input-group"><label>Number of Strands:</label><input type="number" v-model.number="secondaryWinding.strands" min="1" step="1"></div><div class="input-group"><label>Strand Diameter (mm):</label><input type="number" v-model.number="secondaryWinding.strandDiameter" min="0"></div><div class="input-group"><label>Strand Insulation Thickness (mm):</label><input type="number" v-model.number="secondaryWinding.strandInsulation" min="0"></div></div>
                         </div>
-                        <div v-if="secondaryWinding.wireType === 'litz'">
-                            <div class="input-group">
-                                <label>Number of Strands:</label>
-                                <input type="number" v-model.number="secondaryWinding.strands">
-                            </div>
-                            <div class="input-group">
-                                <label>Strand Diameter (mm):</label>
-                                <input type="number" v-model.number="secondaryWinding.strandDiameter">
-                            </div>
-                             <div class="input-group">
-                                <label>Strand Insulation Thickness (mm):</label>
-                                <input type="number" v-model.number="secondaryWinding.strandInsulation">
-                            </div>
+                    </div>
+                    <div v-if="componentType === 'inductor'" class="form-section">
+                        <div class="form-column">
+                            <h4>Winding</h4>
+                            <div class="input-group"><label>Number of Turns:</label><input type="number" v-model.number="inductorWinding.turns" min="1" step="1"></div>
+                            <div class="input-group"><label>Wire type:</label><select v-model="inductorWinding.wireType"><option value="solid">Solid</option><option value="litz">Litz</option></select></div>
+                            <div v-if="inductorWinding.wireType === 'solid'"><div class="input-group"><label>Wire Diameter (mm):</label><input type="number" v-model.number="inductorWinding.diameter" min="0"></div><div class="input-group"><label>Insulation Thickness (mm):</label><input type="number" v-model.number="inductorWinding.insulation" min="0"></div></div>
+                            <div v-if="inductorWinding.wireType === 'litz'"><div class="input-group"><label>Number of Strands:</label><input type="number" v-model.number="inductorWinding.strands" min="1" step="1"></div><div class="input-group"><label>Strand Diameter (mm):</label><input type="number" v-model.number="inductorWinding.strandDiameter" min="0"></div><div class="input-group"><label>Strand Insulation Thickness (mm):</label><input type="number" v-model.number="inductorWinding.strandInsulation" min="0"></div></div>
                         </div>
                     </div>
                 </div>
-                <div v-if="componentType === 'inductor'" class="form-section">
-                    <div class="form-column">
-                        <h3>Winding</h3>
-                        <div class="input-group">
-                            <label>Wire type:</label>
-                            <select v-model="inductorWinding.wireType">
-                                <option value="solid">Solid</option>
-                                <option value="litz">Litz</option>
-                            </select>
+                <div class="input-section">
+                    <h3>Bobbin Definition</h3>
+                    <div class="input-group">
+                        <label>Bobbin Type:</label>
+                        <div class="radio-group">
+                           <input type="radio" id="normal" value="normal" v-model="bobbin.type">
+                           <label for="normal">Normal</label>
+                           <span v-if="componentType === 'transformer'" style="display: inline-flex; align-items: center;">
+                               <input type="radio" id="split" value="split" v-model="bobbin.type">
+                               <label for="split">Split-Bobbin</label>
+                           </span>
                         </div>
-                        <div v-if="inductorWinding.wireType === 'solid'">
-                            <div class="input-group">
-                                <label>Wire Diameter (mm):</label>
-                                <input type="number" v-model.number="inductorWinding.diameter">
-                            </div>
-                            <div class="input-group">
-                                <label>Insulation Thickness (mm):</label>
-                                <input type="number" v-model.number="inductorWinding.insulation">
-                            </div>
-                        </div>
-                        <div v-if="inductorWinding.wireType === 'litz'">
-                            <div class="input-group">
-                                <label>Number of Strands:</label>
-                                <input type="number" v-model.number="inductorWinding.strands">
-                            </div>
-                            <div class="input-group">
-                                <label>Strand Diameter (mm):</label>
-                                <input type="number" v-model.number="inductorWinding.strandDiameter">
-                            </div>
-                            <div class="input-group">
-                                <label>Strand Insulation Thickness (mm):</label>
-                                <input type="number" v-model.number="inductorWinding.strandInsulation">
-                            </div>
-                        </div>
+                    </div>
+                    <div class="input-group">
+                       <label>Bobbin Thickness (mm):</label>
+                       <input type="number" v-model.number="bobbin.thickness" min="0">
+                    </div>
+                    <div v-if="componentType === 'transformer' && bobbin.type === 'normal'" class="input-group">
+                        <label>Inter-Winding Spacing (mm):</label>
+                        <input type="number" v-model.number="bobbin.interWindingSpacing" min="0">
+                    </div>
+                    <div v-if="bobbin.type === 'split'">
+                        <div class="input-group"><label>Primary Section Size (mm):</label><input type="number" v-model.number="bobbin.primarySectionSize" min="0"></div>
+                        <div class="input-group"><label>Secondary Section Size (mm):</label><input type="number" v-model.number="bobbin.secondarySectionSize" min="0"></div>
+                        <div class="input-group"><label>Inter-Section Spacing (mm):</label><input type="number" v-model.number="bobbin.interSectionSpacing" min="0"></div>
                     </div>
                 </div>
             </div>
-
             <div class="main-column-2">
-                <h3>Future Content Area</h3>
-                <p>This area is reserved for results, graphs, etc.</p>
+                <h2>Winding Visualization</h2>
+                <img v-if="plotSrc" :src="plotSrc" alt="Winding Cross-section Plot" style="width: 100%; border-radius: 4px; background-color: white;">
+                <div v-else class="placeholder-text">
+                    Change an input to generate the plot.
+                </div>
             </div>
-            
         </main>
     </div>
 
@@ -358,132 +318,103 @@
         const app = new Vue({
             el: '#app',
             data: {
-                families: [],
-                models: [],
-                selectedFamily: '',
-                selectedModel: '',
-                currentCore: null,
+                families: [], models: [], selectedFamily: '', selectedModel: '', currentCore: null,
                 apiUrl: 'http://127.0.0.1:5000/api',
                 componentType: 'inductor',
-                inductorWinding: {
-                    wireType: 'solid',
-                    diameter: 0,
-                    insulation: 0,
-                    strands: 0,
-                    strandDiameter: 0,
-                    strandInsulation: 0
+                inductorWinding: { turns: 1, wireType: 'solid', diameter: 0.5, insulation: 0.05, strands: 1, strandDiameter: 0, strandInsulation: 0 },
+                primaryWinding: { turns: 10, wireType: 'solid', diameter: 0.5, insulation: 0.05, strands: 1, strandDiameter: 0, strandInsulation: 0 },
+                secondaryWinding: { turns: 5, wireType: 'solid', diameter: 1.0, insulation: 0.05, strands: 1, strandDiameter: 0, strandInsulation: 0 },
+                bobbin: { type: 'normal', thickness: 0.8, primarySectionSize: 0, secondarySectionSize: 0, interSectionSpacing: 0, interWindingSpacing: 0.5 },
+                plotSrc: null,
+                plotDebounceTimer: null
+            },
+            watch: {
+                componentType(newType) {
+                    if (newType === 'inductor') { this.bobbin.type = 'normal'; }
                 },
-                primaryWinding: {
-                    wireType: 'solid',
-                    diameter: 0,
-                    insulation: 0,
-                    strands: 0,
-                    strandDiameter: 0,
-                    strandInsulation: 0
-                },
-                secondaryWinding: {
-                    wireType: 'solid',
-                    diameter: 0,
-                    insulation: 0,
-                    strands: 0,
-                    strandDiameter: 0,
-                    strandInsulation: 0
+                plotDependencies() {
+                    clearTimeout(this.plotDebounceTimer);
+                    this.plotDebounceTimer = setTimeout(() => {
+                        this.generatePlot();
+                    }, 500);
                 }
             },
             computed: {
-                svgPath() {
-                    if (!this.selectedFamily) return null;
-                    return `assets/svg/${this.selectedFamily.toLowerCase()}.svg`;
+                plotDependencies() {
+                    return JSON.stringify({
+                        core: this.currentCore ? this.currentCore.name : null,
+                        componentType: this.componentType,
+                        inductorWinding: this.inductorWinding,
+                        primaryWinding: this.primaryWinding,
+                        secondaryWinding: this.secondaryWinding,
+                        bobbin: this.bobbin
+                    });
                 },
+                svgPath() { if (!this.selectedFamily) return null; return `assets/svg/${this.selectedFamily.toLowerCase()}.svg`; },
                 displayableDimensions() {
                     if (!this.currentCore || !this.currentCore.dimensions) return [];
-                    const dimensions = this.currentCore.dimensions;
-                    const result = [];
-                    const sortedKeys = Object.keys(dimensions).sort();
+                    const dimensions = this.currentCore.dimensions; const result = []; const sortedKeys = Object.keys(dimensions).sort();
                     for (const key of sortedKeys) {
-                        const dim = dimensions[key];
-                        let formattedValue = '';
+                        const dim = dimensions[key]; let formattedValue = '';
                         if (dim && typeof dim === 'object' && dim !== null) {
-                            if (typeof dim.nominal === 'number') {
-                                formattedValue = (dim.nominal * 1000).toFixed(1);
-                            } else if (typeof dim.minimum === 'number' && typeof dim.maximum === 'number') {
-                                const average = (dim.minimum + dim.maximum) / 2;
-                                formattedValue = (average * 1000).toFixed(1);
-                            }
-                        } else if (typeof dim === 'number') {
-                            formattedValue = (dim * 1000).toFixed(1);
-                        }
-                        if (formattedValue) {
-                            result.push({ key: key, value: formattedValue });
-                        }
+                            if (typeof dim.nominal === 'number') { formattedValue = (dim.nominal * 1000).toFixed(1); }
+                            else if (typeof dim.minimum === 'number' && typeof dim.maximum === 'number') { const average = (dim.minimum + dim.maximum) / 2; formattedValue = (average * 1000).toFixed(1); }
+                        } else if (typeof dim === 'number') { formattedValue = (dim * 1000).toFixed(1); }
+                        if (formattedValue) { result.push({ key: key, value: formattedValue }); }
                     }
                     return result;
                 },
                 effectiveParameters() {
                     if (!this.currentCore || !this.currentCore.parameters) return [];
-                    const params = this.currentCore.parameters;
-                    const result = [];
-                    const paramsToShow = {
-                        'Ae': { unit: 'mm²', multiplier: 1e6 },
-                        'le': { unit: 'mm', multiplier: 1e3 },
-                        'Ve': { unit: 'mm³', multiplier: 1e9 },
-                        'Amin': { unit: 'mm²', multiplier: 1e6 }
-                    };
+                    const params = this.currentCore.parameters; const result = [];
+                    const paramsToShow = { 'Ae': { unit: 'mm²', multiplier: 1e6 }, 'le': { unit: 'mm', multiplier: 1e3 }, 'Ve': { unit: 'mm³', multiplier: 1e9 }, 'Amin': { unit: 'mm²', multiplier: 1e6 } };
                     for (const key in paramsToShow) {
                         if (params[key] !== undefined && typeof params[key] === 'number') {
-                            const info = paramsToShow[key];
-                            const value = (params[key] * info.multiplier).toFixed(1);
-                            result.push({
-                                key: key,
-                                value: `${value} ${info.unit}`
-                            });
+                            const info = paramsToShow[key]; const value = (params[key] * info.multiplier).toFixed(1);
+                            result.push({ key: key, value: `${value} ${info.unit}` });
                         }
                     }
                     return result;
                 }
             },
             methods: {
-                async fetchFamilies() {
-                    try {
-                        const response = await fetch(`${this.apiUrl}/families`);
-                        this.families = await response.json();
-                    } catch (error) {
-                        console.error('Error fetching families:', error);
-                    }
-                },
+                async fetchFamilies() { try { const response = await fetch(`${this.apiUrl}/families`); this.families = await response.json(); } catch (error) { console.error('Error fetching families:', error); } },
                 async fetchModels() {
-                    if (!this.selectedFamily) return;
-                    this.selectedModel = '';
-                    this.currentCore = null;
-                    try {
-                        const response = await fetch(`${this.apiUrl}/models/${this.selectedFamily}`);
-                        this.models = await response.json();
-                    } catch (error) {
-                        console.error('Error fetching models:', error);
-                    }
+                    if (!this.selectedFamily) return; this.selectedModel = ''; this.currentCore = null;
+                    try { const response = await fetch(`${this.apiUrl}/models/${this.selectedFamily}`); this.models = await response.json(); } catch (error) { console.error('Error fetching models:', error); }
                 },
                 async fetchCoreData() {
                     if (!this.selectedModel) return;
-                    try {
-                        const encodedModel = encodeURIComponent(this.selectedModel);
-                        const response = await fetch(`${this.apiUrl}/core/${encodedModel}`);
-                        this.currentCore = await response.json();
-                    } catch (error) {
-                        console.error('Error fetching core data:', error);
-                    }
+                    try { const encodedModel = encodeURIComponent(this.selectedModel); const response = await fetch(`${this.apiUrl}/core/${encodedModel}`); this.currentCore = await response.json(); } catch (error) { console.error('Error fetching core data:', error); }
                 },
                 updateSvgStyles() {
                     const svgObject = document.getElementById('core-svg');
-                    if (!svgObject || !svgObject.contentDocument) {
-                        setTimeout(() => this.updateSvgStyles(), 100);
-                        return;
+                    if (!svgObject || !svgObject.contentDocument) { setTimeout(() => this.updateSvgStyles(), 100); return; }
+                    const svgDoc = svgObject.contentDocument; const allTextInSvg = svgDoc.querySelectorAll('text');
+                    allTextInSvg.forEach(element => { element.style.fontFamily = window.getComputedStyle(document.body).fontFamily; element.style.fill = 'white'; });
+                },
+                async generatePlot() {
+                    if (!this.currentCore) return;
+                    const payload = {
+                        currentCore: this.currentCore,
+                        componentType: this.componentType,
+                        bobbin: this.bobbin,
+                        inductorWinding: this.inductorWinding,
+                        primaryWinding: this.primaryWinding,
+                        secondaryWinding: this.secondaryWinding
+                    };
+                    try {
+                        const response = await fetch(`${this.apiUrl}/generate_plot`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) throw new Error('Plot generation failed');
+                        const data = await response.json();
+                        this.plotSrc = data.image_src;
+                    } catch (error) {
+                        console.error("Error generating plot:", error);
                     }
-                    const svgDoc = svgObject.contentDocument;
-                    const allTextInSvg = svgDoc.querySelectorAll('text');
-                    allTextInSvg.forEach(element => {
-                        element.style.fontFamily = window.getComputedStyle(document.body).fontFamily;
-                        element.style.fill = 'white'; 
-                    });
                 }
             },
             mounted() {
