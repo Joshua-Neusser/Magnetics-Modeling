@@ -354,7 +354,7 @@ class LeakageInductanceCalculator:
         self.Width_2_Minus   = EquivalentWindingsBlocks['secondary']['x']
         self.Width_2_Plus    = EquivalentWindingsBlocks['secondary']['x'] + EquivalentWindingsBlocks['secondary']['width']
         
-
+    
 
         # Core-Specific Leakage Expressions
         match SelectedCore["family"]:
@@ -362,7 +362,7 @@ class LeakageInductanceCalculator:
             case 'ETD':
 
                 DiameterCentralLeg = SelectedCore["F"]
-                alpha = 4*np.arctan((SelectedCore["C"]/2)/(SelectedCore["E"]/2))
+                alpha = 4*np.arctan((SelectedCore["C"]/2)/(SelectedCore["E"]/2)) # Here alpha represents the ENTIRE IW angle
 
                 leakage_pua_IW = self.Leakage_pua_IW_calc_vectorized(30, 30, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
                                 NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2,
