@@ -19,9 +19,9 @@ class LeakageInductanceCalculator:
 
 
 
-    # 2D Leakage Functions
+    # 2D Leakage Inductance Functions
     @staticmethod
-    def Leakage_pul_IW_calc_vectorized(M, N, I_ref, WindowWidth, WindowHeight,
+    def Leakage_pul_IW(M, N, I_ref, WindowWidth, WindowHeight,
                                     NumberOfTurns_1, I_1, Width_1, Height_1, NumberOfTurns_2, I_2, Width_2, Height_2,
                                     Height_1_Minus, Height_1_Plus, Height_2_Minus, Height_2_Plus,
                                     Width_1_Minus, Width_1_Plus, Width_2_Minus, Width_2_Plus):
@@ -74,7 +74,7 @@ class LeakageInductanceCalculator:
         return Leakage_pul_IW
     
     @staticmethod
-    def Leakage_pul_OW_calc_vectorized(M, N, I_ref, WindowWidth, WindowHeight,
+    def Leakage_pul_OW(M, N, I_ref, WindowWidth, WindowHeight,
                                     NumberOfTurns_1, I_1, Width_1, Height_1, NumberOfTurns_2, I_2, Width_2, Height_2,
                                     Height_1_Minus, Height_1_Plus, Height_2_Minus, Height_2_Plus,
                                     Width_1_Minus, Width_1_Plus, Width_2_Minus, Width_2_Plus):
@@ -132,7 +132,7 @@ class LeakageInductanceCalculator:
         return Leakage_pul_OW
     
     @staticmethod
-    def Leakage_pua_IW_calc_vectorized(M, N, I_ref, WindowWidth, WindowHeight, DiameterCentralLeg,
+    def Leakage_pua_IW(M, N, I_ref, WindowWidth, WindowHeight, DiameterCentralLeg,
                                     NumberOfTurns_1, I_1, Width_1, Height_1, NumberOfTurns_2, I_2, Width_2, Height_2,
                                     Height_1_Minus, Height_1_Plus, Height_2_Minus, Height_2_Plus,
                                     Width_1_Minus, Width_1_Plus, Width_2_Minus, Width_2_Plus):
@@ -221,7 +221,7 @@ class LeakageInductanceCalculator:
         return Leakage_pua_IW
     
     @staticmethod
-    def Leakage_pua_OW_calc_vectorized(M, N, I_ref, WindowWidth, WindowHeight, DiameterCentralLeg,
+    def Leakage_pua_OW(M, N, I_ref, WindowWidth, WindowHeight, DiameterCentralLeg,
                                     NumberOfTurns_1, I_1, Width_1, Height_1, NumberOfTurns_2, I_2, Width_2, Height_2,
                                     Height_1_Minus, Height_1_Plus, Height_2_Minus, Height_2_Plus,
                                     Width_1_Minus, Width_1_Plus, Width_2_Minus, Width_2_Plus):
@@ -364,18 +364,47 @@ class LeakageInductanceCalculator:
                 DiameterCentralLeg = SelectedCore["F"]
                 alpha = 4*np.arctan((SelectedCore["C"]/2)/(SelectedCore["E"]/2)) # Here alpha represents the ENTIRE IW angle
 
-                leakage_pua_IW = self.Leakage_pua_IW_calc_vectorized(30, 30, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
+                leakage_pua_IW = self.Leakage_pua_IW(30, 30, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
                                 NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2,
                                 self.Height_1_Minus, self.Height_1_Plus, self.Height_2_Minus, self.Height_2_Plus, 
                                 self.Width_1_Minus, self.Width_1_Plus, self.Width_2_Minus, self.Width_2_Plus)
 
-                leakage_pua_OW = self.Leakage_pua_OW_calc_vectorized(150, 150, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
+                leakage_pua_OW = self.Leakage_pua_OW(150, 150, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
                                 NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2,
                                 self.Height_1_Minus, self.Height_1_Plus, self.Height_2_Minus, self.Height_2_Plus, 
                                 self.Width_1_Minus, self.Width_1_Plus, self.Width_2_Minus, self.Width_2_Plus)
 
                 LeakageInductance = leakage_pua_IW*alpha + leakage_pua_OW*(2*np.pi-alpha)
-    
+
+
+            case 'EFD':
+                DiameterCentralLeg = 0
+                alpha = 2*np.arctan((SelectedCore["C"]-SelectedCore["F2"])/((SelectedCore["E"]-SelectedCore["F"])/2)) # Here alpha represents the ENTIRE IW angle
+                
+                leakage_pul_IW = self.Leakage_pul_IW(30, 30, self.I_ref, WindowWidth, WindowHeight,
+                                NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2, 
+                                self.Height_1_Minus, self.Height_1_Plus, self.Height_2_Minus, self.Height_2_Plus, 
+                                self.Width_1_Minus, self.Width_1_Plus, self.Width_2_Minus, self.Width_2_Plus)
+
+                leakage_pul_OW = self.Leakage_pul_OW(150, 150, self.I_ref, WindowWidth, WindowHeight,
+                                NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2, 
+                                self.Height_1_Minus, self.Height_1_Plus, self.Height_2_Minus, self.Height_2_Plus, 
+                                self.Width_1_Minus, self.Width_1_Plus, self.Width_2_Minus, self.Width_2_Plus)
+                
+                leakage_pua_IW = self.Leakage_pua_IW(30, 30, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
+                                NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2,
+                                self.Height_1_Minus, self.Height_1_Plus, self.Height_2_Minus, self.Height_2_Plus, 
+                                self.Width_1_Minus, self.Width_1_Plus, self.Width_2_Minus, self.Width_2_Plus)
+
+                leakage_pua_OW = self.Leakage_pua_OW(150, 150, self.I_ref, WindowWidth, WindowHeight, DiameterCentralLeg, 
+                                NumberOfTurns_1, self.I_1, self.Width_1, self.Height_1, NumberOfTurns_2, self.I_2, self.Width_2, self.Height_2,
+                                self.Height_1_Minus, self.Height_1_Plus, self.Height_2_Minus, self.Height_2_Plus, 
+                                self.Width_1_Minus, self.Width_1_Plus, self.Width_2_Minus, self.Width_2_Plus)
+                
+                LeakageInductance = leakage_pul_IW*SelectedCore["F2"] + leakage_pul_OW*SelectedCore["F"] + leakage_pua_IW*alpha + leakage_pua_OW*(2*np.pi-alpha)
+
+
+
         return LeakageInductance
 
 
