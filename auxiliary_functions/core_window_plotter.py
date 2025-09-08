@@ -39,7 +39,7 @@ class TransformerPlotter:
         
         if BobbinType == 'Split':
             spacer_rect = patches.Rectangle(xy=(BobbinThickness, BobbinThickness + PrimaryHeight), width=bobbin_inner_width, height=InterSectionSpacing,
-                                          linewidth=1, linestyle='--', edgecolor='gray', facecolor='lightgray', alpha=0.5, label='Spacing')
+                                          linewidth=1, linestyle='--', edgecolor='gray', facecolor='lightgray', alpha=0.3, label='Spacing')
             self.ax.add_patch(spacer_rect)
 
     def plot_geometry(self, coordinates, winding_dims,
@@ -66,10 +66,10 @@ class TransformerPlotter:
                 secondary_cop_patches.append(patches.Circle((x, y), ConductorDiameter_2 / 2))
         
         primary_color, secondary_color = 'darkorange', 'royalblue' 
-        self.ax.add_collection(PatchCollection(primary_ins_patches, facecolor=self.darken_color(primary_color, 0.4), edgecolor='none', label='Isolação Primária'))
-        self.ax.add_collection(PatchCollection(primary_cop_patches, facecolor=primary_color, edgecolor='none', label='Cobre Primário'))
-        self.ax.add_collection(PatchCollection(secondary_ins_patches, facecolor=self.darken_color(secondary_color, 0.4), edgecolor='none', label='Isolação Secundária'))
-        self.ax.add_collection(PatchCollection(secondary_cop_patches, facecolor=secondary_color, edgecolor='none', label='Cobre Secundário'))
+        self.ax.add_collection(PatchCollection(primary_ins_patches, facecolor=self.darken_color(primary_color, 0.4), edgecolor='none'))
+        self.ax.add_collection(PatchCollection(primary_cop_patches, facecolor=primary_color, edgecolor='none'))
+        self.ax.add_collection(PatchCollection(secondary_ins_patches, facecolor=self.darken_color(secondary_color, 0.4), edgecolor='none'))
+        self.ax.add_collection(PatchCollection(secondary_cop_patches, facecolor=secondary_color, edgecolor='none'))
         
         rect_style = {'linestyle': ':', 'linewidth': 1.5, 'facecolor': 'none', 'alpha': 0.8}
         if 'primary' in winding_dims:
