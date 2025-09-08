@@ -71,8 +71,8 @@ class WindingMaker:
                 y_pos = y_start_2 + (turn_in_layer * pitch_2) + pitch_2 / 2
                 coordinates.append({'x': x_pos, 'y': y_pos, 'winding': 'secondary', 'turn': i + 1})
             
-            winding_dims['primary'] = {'x': BobbinThickness, 'y': BobbinThickness, 'width': (NumberOfTurns_1 / turns_per_layer_1) * pitch_1, 'height': turns_per_layer_1 * pitch_1}
-            winding_dims['secondary'] = {'x': x_start_2, 'y': y_start_2, 'width': (NumberOfTurns_2 / turns_per_layer_2) * pitch_2, 'height': turns_per_layer_2 * pitch_2}
+            winding_dims['primary'] = {'x': BobbinThickness + InsulationThickness_1, 'y': BobbinThickness + InsulationThickness_1, 'width': (NumberOfTurns_1 / turns_per_layer_1) * pitch_1 - 2*InsulationThickness_1, 'height': turns_per_layer_1 * pitch_1 - 2*InsulationThickness_1}
+            winding_dims['secondary'] = {'x': x_start_2 + InsulationThickness_2, 'y': y_start_2 + InsulationThickness_2, 'width': (NumberOfTurns_2 / turns_per_layer_2) * pitch_2 - 2*InsulationThickness_2, 'height': turns_per_layer_2 * pitch_2 - 2*InsulationThickness_2}
 
         elif BobbinType == 'Split':
             if PrimaryHeight + InterSectionSpacing + SecondaryHeight > bobbin_inner_height: return [], {}
@@ -113,8 +113,8 @@ class WindingMaker:
                 y_pos = y_start_s + (turn_in_layer * pitch_2) + pitch_2 / 2
                 coordinates.append({'x': x_pos, 'y': y_pos, 'winding': 'secondary', 'turn': i + 1})
                 
-            winding_dims['primary'] = {'x': BobbinThickness, 'y': y_start_p, 'width': (NumberOfTurns_1 / turns_per_layer_p) * pitch_1, 'height': height_occupied_p}
-            winding_dims['secondary'] = {'x': BobbinThickness, 'y': y_start_s, 'width': (NumberOfTurns_2 / turns_per_layer_s) * pitch_2, 'height': height_occupied_s}
+            winding_dims['primary'] = {'x': BobbinThickness + InsulationThickness_1, 'y': y_start_p + InsulationThickness_1, 'width': (NumberOfTurns_1 / turns_per_layer_p) * pitch_1 - 2*InsulationThickness_1, 'height': height_occupied_p - 2*InsulationThickness_1}
+            winding_dims['secondary'] = {'x': BobbinThickness + InsulationThickness_2, 'y': y_start_s + InsulationThickness_2, 'width': (NumberOfTurns_2 / turns_per_layer_s) * pitch_2 - 2*InsulationThickness_2, 'height': height_occupied_s - 2*InsulationThickness_2}
 
         return coordinates, winding_dims
     
